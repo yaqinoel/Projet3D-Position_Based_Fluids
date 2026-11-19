@@ -26,6 +26,7 @@ int main() {
     // create solver with particles
     PBFSolver solver(particles);
 
-
+    // execute one step
+    solver.step(0.01f);
 
 }
