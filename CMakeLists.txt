@@ -15,6 +15,7 @@ FetchContent_MakeAvailable(glm)
 # PBF static core library
 add_library(pbf_core STATIC
     src/core/PBFSolver.cpp
+    src/core/SimulationManager.cpp
 )
 target_include_directories(pbf_core PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src/core"

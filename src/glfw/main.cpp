@@ -11,6 +11,7 @@
 #include "render/Shader.hpp"
 #include "render/ParticleRender.hpp"
 #include "CameraInput.hpp"
+#include "SimulationManager.hpp"
 
 // initialize GLFW and create window
 GLFWwindow* createWindow() {
@@ -54,7 +55,7 @@ bool initializeOpenGL(GLFWwindow* window) {
 
 
 // create particles for test
-std::vector<Particle> createParticles(const int num_particles = 1000) {
+std::vector<Particle> createParticles(const int num_particles = 100000) {
     std::vector<Particle> particles;
     particles.resize(num_particles);
 
@@ -90,11 +91,11 @@ int main() {
     // initialize particles
     std::vector<Particle> particles = createParticles();
 
-    // initialize solver
-    PBFSolver solver(particles);
+    // initialize simulation manager
+    SimulationManager simulationManager(particles);
 
     // upload particles to GPU
-    renderer.upload(solver.getParticles());
+    renderer.upload(simulationManager.getParticles());
 
     // create camera
     Camera camera{{0.0f, 0.0f, 3.0f}};
@@ -127,8 +128,8 @@ int main() {
         updateCamera(window, camera, mouse, frameDt, cameraInput);
 
         // update particles positions
-        solver.step(0.1f);
-        renderer.upload(solver.getParticles());
+        simulationManager.updateSimulation(frameDt);
+        renderer.upload(simulationManager.getParticles());
 
         // draw particles
         shader.use();

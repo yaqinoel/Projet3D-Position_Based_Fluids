@@ -4,8 +4,8 @@
 
 
 // initialize solver with particles
-PBFSolver::PBFSolver(std::vector<Particle> initialParticles)
-    : particles(std::move(initialParticles)) {
+PBFSolver::PBFSolver(const std::vector<Particle>& initialParticles)
+    : particles(initialParticles) {
     std::cout<< "Initialized solver with " << particles.size() << " particles" << std::endl;
 }
 
@@ -18,20 +18,20 @@ void PBFSolver::step(float dt) {
     }
 
     // TODO
-    // implememt PBF algorithm
+    // implement PBF algorithm
 
 }
 
 
-// reset solver states, particles
-void PBFSolver::reset() {
-    std::cout<< "Reset solver..." << std::endl;
-
+// set new particles for solver
+void PBFSolver::setParticles(const std::vector<Particle>& newParticles) {
+    std::cout<< "Reset solver with " << particles.size() << " particles" << std::endl;
+    particles = newParticles;
 }
 
 
 // get all particles, just for read, only the solver can change particles attributions
 [[nodiscard]]
-const std::vector<Particle>& PBFSolver::getParticles() {
+const std::vector<Particle>& PBFSolver::getParticles() const {
     return particles;
 }
