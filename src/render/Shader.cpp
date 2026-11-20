@@ -4,6 +4,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include <glm/gtc/type_ptr.hpp>
+
 // reader shader source code from a fie
 std::string readShaderFile(const std::filesystem::path& path) {
     std::ifstream file(path);
@@ -122,4 +124,9 @@ void Shader::setInt(const std::string& name, int value) const {
 
 void Shader::setFloat(const std::string& name, float value) const {
     glUniform1f(glGetUniformLocation(programId, name.c_str()), value);
+}
+
+void Shader::setMat4(const std::string& name, const glm::mat4& value) const {
+    const GLint location = glGetUniformLocation(programId, name.c_str());
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }

@@ -4,11 +4,13 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <glm/gtc/random.hpp>
 
 #include "PBFSolver.hpp"
 #include "render/Camera.hpp"
 #include "render/Shader.hpp"
 #include "render/ParticleRender.hpp"
+#include "CameraInput.hpp"
 
 // initialize GLFW and create window
 GLFWwindow* createWindow() {
@@ -46,7 +48,27 @@ bool initializeOpenGL(GLFWwindow* window) {
 
     glfwSwapInterval(1);
     glClearColor(0.06f, 0.09f, 0.14f, 1.0f);
+    glEnable(GL_PROGRAM_POINT_SIZE);
     return true;
+}
+
+
+// create particles for test
+std::vector<Particle> createParticles(const int num_particles = 100000) {
+    std::vector<Particle> particles;
+    particles.resize(num_particles);
+
+    // set all particles randomly in a cube
+    for (int i = 0; i < num_particles; i++) {
+        particles[i].mass = 1.0f;
+        particles[i].velocity = glm::vec3(0.0f);
+        const glm::vec3 random = glm::linearRand(glm::vec3(-1.0f), glm::vec3(1.0f));
+        const glm::vec3 halfSize{0.5f, 1.5f, 0.5f};
+        const glm::vec3 center{-0.5f, 2.5f, 0.0f};
+        particles[i].position = center + halfSize * random;
+    }
+
+    return particles;
 }
 
 int main() {
@@ -66,10 +88,7 @@ int main() {
     ParticleRender renderer;
 
     // initialize particles
-    Particle particle;
-    particle.position = {0.0f, 0.0f, 0.0f};
-    std::vector<Particle> particles;
-    particles.push_back(particle);
+    std::vector<Particle> particles = createParticles();
 
     // initialize solver
     PBFSolver solver(particles);
@@ -77,7 +96,11 @@ int main() {
     // upload particles to GPU
     renderer.upload(solver.getParticles());
 
-    glEnable(GL_PROGRAM_POINT_SIZE);
+    // create camera
+    Camera camera{{0.0f, 0.0f, 3.0f}};
+    MouseState mouse;
+    CameraInputSettings cameraInput;
+    double lastFrameTime = glfwGetTime();
 
     // render loop
     while (!glfwWindowShouldClose(window)) {
@@ -93,12 +116,23 @@ int main() {
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        const float aspectRatio = static_cast<float>(width) / height;
+
+        // calculate frame delta
+        const double now = glfwGetTime();
+        const float frameDt = static_cast<float>(std::min(now - lastFrameTime, 0.05));  // minimun frame delta = 0.05s
+        lastFrameTime = now;
+
+        // update camera
+        updateCamera(window, camera, mouse, frameDt, cameraInput);
+
         // update particles positions
         solver.step(0.1f);
         renderer.upload(solver.getParticles());
 
         // draw particles
         shader.use();
+        shader.setMat4("viewProjection",camera.projectionMatrix(aspectRatio) * camera.viewMatrix());
         renderer.draw();
 
         glfwSwapBuffers(window);

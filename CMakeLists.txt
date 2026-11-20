@@ -49,6 +49,7 @@ if(PBF_BUILD_GLFW)
 
     add_executable(pbf_glfw
         src/glfw/main.cpp
+        src/glfw/CameraInput.cpp
         src/render/Camera.cpp
         src/render/Shader.cpp
         src/render/ParticleRender.cpp
