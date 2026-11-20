@@ -9,17 +9,26 @@ PBFSolver::PBFSolver(std::vector<Particle> initialParticles)
     std::cout<< "Initialized solver with " << particles.size() << " particles" << std::endl;
 }
 
-// execute one step PBF algorithm
+
+// execute simulation one step
 void PBFSolver::step(float dt) {
-    std::cout<< "step one..." << std::endl;
+    // for the moment we just let particles go down 0.001f every stp
+    for (int i = 0; i < particles.size(); i++) {
+        particles[i].position.y -= 0.001f;
+    }
+
+    // TODO
+    // implememt PBF algorithm
 
 }
+
 
 // reset solver states, particles
 void PBFSolver::reset() {
     std::cout<< "Reset solver..." << std::endl;
 
 }
+
 
 // get all particles, just for read, only the solver can change particles attributions
 [[nodiscard]]
