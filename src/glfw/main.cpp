@@ -54,7 +54,7 @@ bool initializeOpenGL(GLFWwindow* window) {
 
 
 // create particles for test
-std::vector<Particle> createParticles(const int num_particles = 100000) {
+std::vector<Particle> createParticles(const int num_particles = 1000) {
     std::vector<Particle> particles;
     particles.resize(num_particles);
 
@@ -64,7 +64,7 @@ std::vector<Particle> createParticles(const int num_particles = 100000) {
         particles[i].velocity = glm::vec3(0.0f);
         const glm::vec3 random = glm::linearRand(glm::vec3(-1.0f), glm::vec3(1.0f));
         const glm::vec3 halfSize{0.5f, 1.5f, 0.5f};
-        const glm::vec3 center{-0.5f, 2.5f, 0.0f};
+        const glm::vec3 center{0.0f, 2.5f, 0.0f};
         particles[i].position = center + halfSize * random;
     }
 
