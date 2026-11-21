@@ -13,20 +13,20 @@ void onSimulationKey(GLFWwindow* window, int key, int, int action, int) {
     // get pointer of simulation manager from window
     auto* simulationManager = static_cast<SimulationManager*>(glfwGetWindowUserPointer(window));
 
-    // change pause state
-    if (key == GLFW_KEY_SPACE) {
-        simulationManager->togglePause();
+    switch (key) {
+        case GLFW_KEY_SPACE:    // change pause state
+            simulationManager->togglePause();
+            break;
+        case GLFW_KEY_R:    // reset simulation
+            simulationManager->reset();
+            break;
+        case GLFW_KEY_P:    // one step execution
+            simulationManager->oneStepRequest();
+            break;
+        default:
+            return;
     }
 
-    // reset simulation
-    if (key == GLFW_KEY_R) {
-        simulationManager->reset();
-    }
-
-    // one step execution
-    if (key == GLFW_KEY_P) {
-        simulationManager->oneStepRequest();
-    }
 }
 
 

@@ -41,6 +41,7 @@ GLFWwindow* createWindow() {
 }
 
 
+// create openGL context
 bool initializeOpenGL(GLFWwindow* window) {
     glfwMakeContextCurrent(window);
     if (gladLoadGL(glfwGetProcAddress) == 0) {
@@ -84,63 +85,66 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    // create shader
-    const auto shaderDir = std::filesystem::path{ASSET_DIR} / "shader";
-    Shader shader{shaderDir / "particles.vert", shaderDir / "particles.frag"};
-    ParticleRender renderer;
+    // create a domaine for all opengl render resource
+    {
+        // create shader
+        const auto shaderDir = std::filesystem::path{ASSET_DIR} / "shader";
+        Shader shader{shaderDir / "particles.vert", shaderDir / "particles.frag"};
+        ParticleRender renderer;
 
-    // initialize particles
-    std::vector<Particle> particles = createParticles();
+        // initialize particles
+        std::vector<Particle> particles = createParticles();
 
-    // initialize simulation manager
-    SimulationManager simulationManager(particles);
-    bindSimulationInput(window, simulationManager); // bind input key with simulation manager
+        // initialize simulation manager
+        SimulationManager simulationManager(particles);
+        bindSimulationInput(window, simulationManager); // bind input key with simulation manager
 
-    // upload particles to GPU
-    renderer.upload(simulationManager.getParticles());
-
-    // create camera
-    Camera camera{{0.0f, 0.0f, 3.0f}};
-    MouseState mouse;
-    CameraInputSettings cameraInput;
-    double lastFrameTime = glfwGetTime();
-
-    // render loop
-    while (!glfwWindowShouldClose(window)) {
-        int width = 0;
-        int height = 0;
-        glfwGetFramebufferSize(window, &width, &height);
-
-        if (width == 0 || height == 0) {
-            glfwWaitEvents();
-            continue;
-        }
-
-        glViewport(0, 0, width, height);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        const float aspectRatio = static_cast<float>(width) / height;
-
-        // calculate frame delta
-        const double now = glfwGetTime();
-        const float frameDt = static_cast<float>(std::min(now - lastFrameTime, 0.05));  // minimun frame delta = 0.05s
-        lastFrameTime = now;
-
-        // update input for camera
-        updateCamera(window, camera, mouse, frameDt, cameraInput);
-
-        // update particles positions
-        simulationManager.updateSimulation(frameDt);
+        // upload particles to GPU
         renderer.upload(simulationManager.getParticles());
 
-        // draw particles
-        shader.use();
-        shader.setMat4("viewProjection",camera.projectionMatrix(aspectRatio) * camera.viewMatrix());
-        renderer.draw();
+        // create camera
+        Camera camera{{0.0f, 0.0f, 3.0f}};
+        MouseState mouse;
+        CameraInputSettings cameraInput;
+        double lastFrameTime = glfwGetTime();
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    }
+        // run loop
+        while (!glfwWindowShouldClose(window)) {
+            int width = 0;
+            int height = 0;
+            glfwGetFramebufferSize(window, &width, &height);
+
+            if (width == 0 || height == 0) {
+                glfwWaitEvents();
+                continue;
+            }
+
+            glViewport(0, 0, width, height);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            const float aspectRatio = static_cast<float>(width) / height;
+
+            // calculate frame delta
+            const double now = glfwGetTime();
+            const float frameDt = static_cast<float>(std::min(now - lastFrameTime, 0.05));  // minimun frame delta = 0.05s
+            lastFrameTime = now;
+
+            // update input for camera
+            updateCamera(window, camera, mouse, frameDt, cameraInput);
+
+            // update particles positions
+            simulationManager.updateSimulation(frameDt);
+            renderer.upload(simulationManager.getParticles());
+
+            // draw particles
+            shader.use();
+            shader.setMat4("viewProjection",camera.projectionMatrix(aspectRatio) * camera.viewMatrix());
+            renderer.draw();
+
+            glfwSwapBuffers(window);
+            glfwPollEvents();
+        }
+    }   // deconstruct all opengl render resources
 
     glfwDestroyWindow(window);
     glfwTerminate();
