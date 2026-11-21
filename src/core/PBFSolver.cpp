@@ -14,7 +14,7 @@ PBFSolver::PBFSolver(const std::vector<Particle>& initialParticles)
 void PBFSolver::step(float dt) {
     // for the moment we just let particles go down 0.001f every stp
     for (int i = 0; i < particles.size(); i++) {
-        particles[i].position.y -= 0.001f;
+        particles[i].position.y -= dt * 0.5f;
     }
 
     // TODO

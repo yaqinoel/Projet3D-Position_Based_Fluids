@@ -12,6 +12,7 @@
 #include "render/ParticleRender.hpp"
 #include "CameraInput.hpp"
 #include "SimulationManager.hpp"
+#include "SimulationInput.hpp"
 
 // initialize GLFW and create window
 GLFWwindow* createWindow() {
@@ -93,6 +94,7 @@ int main() {
 
     // initialize simulation manager
     SimulationManager simulationManager(particles);
+    bindSimulationInput(window, simulationManager); // bind input key with simulation manager
 
     // upload particles to GPU
     renderer.upload(simulationManager.getParticles());
@@ -124,7 +126,7 @@ int main() {
         const float frameDt = static_cast<float>(std::min(now - lastFrameTime, 0.05));  // minimun frame delta = 0.05s
         lastFrameTime = now;
 
-        // update camera
+        // update input for camera
         updateCamera(window, camera, mouse, frameDt, cameraInput);
 
         // update particles positions

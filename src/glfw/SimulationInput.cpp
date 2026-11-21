@@ -1,0 +1,37 @@
+#include "SimulationInput.hpp"
+#include "SimulationManager.hpp"
+
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
+// key call back function
+void onSimulationKey(GLFWwindow* window, int key, int, int action, int) {
+    if (action != GLFW_PRESS) {
+        return;
+    }
+
+    // get pointer of simulation manager from window
+    auto* simulationManager = static_cast<SimulationManager*>(glfwGetWindowUserPointer(window));
+
+    // change pause state
+    if (key == GLFW_KEY_SPACE) {
+        simulationManager->togglePause();
+    }
+
+    // reset simulation
+    if (key == GLFW_KEY_R) {
+        simulationManager->reset();
+    }
+
+    // one step execution
+    if (key == GLFW_KEY_P) {
+        simulationManager->oneStepRequest();
+    }
+}
+
+
+// bind key call back
+void bindSimulationInput(GLFWwindow* window, SimulationManager& simulation) {
+    glfwSetWindowUserPointer(window, &simulation);  // set pointer of simulation manager to window
+    glfwSetKeyCallback(window, onSimulationKey);
+}
