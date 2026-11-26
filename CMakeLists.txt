@@ -49,7 +49,7 @@ if(PBF_BUILD_GLFW)
     add_library(pbf_glad STATIC third_party/glad/src/gl.c)
     target_include_directories(pbf_glad PUBLIC third_party/glad/include)
 
-    add_executable(pbf_glfw
+    add_executable(pbf_glfw_viewer
             src/glfw/GlfwViewerApplication.cpp
         src/glfw/CameraInput.cpp
         src/glfw/SimulationInput.cpp
@@ -60,14 +60,14 @@ if(PBF_BUILD_GLFW)
         src/render/ParticleRender.cpp
     )
 
-    target_include_directories(pbf_glfw PRIVATE
+    target_include_directories(pbf_glfw_viewer PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src"
     )
 
-    target_compile_definitions(pbf_glfw PRIVATE
+    target_compile_definitions(pbf_glfw_viewer PRIVATE
         ASSET_DIR="${CMAKE_CURRENT_SOURCE_DIR}/assets"
     )
-    target_link_libraries(pbf_glfw PRIVATE pbf_core glfw pbf_glad)
+    target_link_libraries(pbf_glfw_viewer PRIVATE pbf_core glfw pbf_glad)
 endif()
 
 

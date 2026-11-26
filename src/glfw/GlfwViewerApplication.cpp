@@ -98,11 +98,12 @@ int main() {
 
         // simulation setting
         SimulationParams settings;
-        settings.particleSamplingMode = ParticleSamplingMode::ByCount;
-        settings.particleCount = 10000;
+        settings.particleSamplingMode = ParticleSamplingMode::BySpacing;
+        settings.particleSpacing = 0.08f;
+        // settings.particleSamplingMode = ParticleSamplingMode::ByCount;
+        // settings.particleCount = 10000;
 
         // initialize simulation scene
-
         SimulationScene scene{
             Fluids{1000.0f, InitialFluidCube{{0.0f, 1.75f, 0.0f },{1.0f, 0.75f, 1.0f}}},
             BoxContainer{{0.0f, 0.0f, 0.0f},{2.0f, 3.0f, 2.0f}}
