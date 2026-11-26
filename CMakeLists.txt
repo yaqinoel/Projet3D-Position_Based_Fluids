@@ -14,6 +14,7 @@ FetchContent_MakeAvailable(glm)
 
 # PBF static core library
 add_library(pbf_core STATIC
+    src/core/Fluids.cpp
     src/core/PBFSolver.cpp
     src/core/SimulationManager.cpp
 )
@@ -49,10 +50,11 @@ if(PBF_BUILD_GLFW)
     target_include_directories(pbf_glad PUBLIC third_party/glad/include)
 
     add_executable(pbf_glfw
-        src/glfw/main.cpp
+            src/glfw/GlfwViewerApplication.cpp
         src/glfw/CameraInput.cpp
         src/glfw/SimulationInput.cpp
 
+        src/render/BoxContainerRender.cpp
         src/render/Camera.cpp
         src/render/Shader.cpp
         src/render/ParticleRender.cpp

@@ -14,8 +14,8 @@ struct MouseState {
 
 // camera moving parameters
 struct CameraInputSettings {
-    float moveSpeed = 2.0f;
-    float mouseSensitivity = 0.12f;
+    float moveSpeed = 3.0f;
+    float mouseSensitivity = 0.20f;
 };
 
 void updateCamera(GLFWwindow* window, Camera& camera, MouseState& mouse, float dt, const CameraInputSettings& settings);

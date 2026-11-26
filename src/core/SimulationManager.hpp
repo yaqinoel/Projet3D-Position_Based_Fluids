@@ -3,9 +3,12 @@
 #include <PBFSolver.hpp>
 #include <Particle.hpp>
 
+#include "SimulationParams.hpp"
+#include "SimulationScene.hpp"
+
 class SimulationManager {
 public:
-    explicit SimulationManager(std::vector<Particle> particles);
+    explicit SimulationManager(SimulationScene scene, SimulationParams settings);
     void reset();
     void updateSimulation(float dt);
     const std::vector<Particle>& getParticles() const;
@@ -13,8 +16,10 @@ public:
     void oneStepRequest();
 
 private:
-    bool isPaused = false;
+    bool isPaused = true;
     bool stepRequested = false;
+    SimulationParams params;
+    SimulationScene simulationScene;
     std::vector<Particle> initialParticles; // keep all particles initial state in simulation manager
     PBFSolver solver;   // solver as a private member
 };

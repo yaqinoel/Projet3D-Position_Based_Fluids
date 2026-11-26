@@ -4,15 +4,18 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <glm/geometric.hpp>
 #include <glm/gtc/random.hpp>
 
 #include "PBFSolver.hpp"
+#include "render/BoxContainerRender.hpp"
 #include "render/Camera.hpp"
 #include "render/Shader.hpp"
 #include "render/ParticleRender.hpp"
 #include "CameraInput.hpp"
 #include "SimulationManager.hpp"
 #include "SimulationInput.hpp"
+#include "SimulationParams.hpp"
 
 // initialize GLFW and create window
 GLFWwindow* createWindow() {
@@ -51,6 +54,7 @@ bool initializeOpenGL(GLFWwindow* window) {
 
     glfwSwapInterval(1);
     glClearColor(0.06f, 0.09f, 0.14f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_PROGRAM_POINT_SIZE);
     return true;
 }
@@ -92,18 +96,32 @@ int main() {
         Shader shader{shaderDir / "particles.vert", shaderDir / "particles.frag"};
         ParticleRender renderer;
 
-        // initialize particles
-        std::vector<Particle> particles = createParticles();
+        // simulation setting
+        SimulationParams settings;
+        settings.particleSamplingMode = ParticleSamplingMode::ByCount;
+        settings.particleCount = 10000;
+
+        // initialize simulation scene
+
+        SimulationScene scene{
+            Fluids{1000.0f, InitialFluidCube{{0.0f, 1.75f, 0.0f },{1.0f, 0.75f, 1.0f}}},
+            BoxContainer{{0.0f, 0.0f, 0.0f},{2.0f, 3.0f, 2.0f}}
+        };
+
+        Shader containerShader{shaderDir / "container.vert", shaderDir / "container.frag"};
+        BoxContainerRender containerRender(scene.container);
 
         // initialize simulation manager
-        SimulationManager simulationManager(particles);
+        SimulationManager simulationManager(scene, settings);
         bindSimulationInput(window, simulationManager); // bind input key with simulation manager
 
         // upload particles to GPU
         renderer.upload(simulationManager.getParticles());
 
-        // create camera
-        Camera camera{{0.0f, 0.0f, 3.0f}};
+        // frame the container from an oblique angle
+        Camera camera{scene.container.center, -125.0f, -20.0f};
+        const float containerRadius = glm::length(scene.container.halfSize);
+        camera.move({0.0f, 0.0f, -2.0f * containerRadius});
         MouseState mouse;
         CameraInputSettings cameraInput;
         double lastFrameTime = glfwGetTime();
@@ -120,7 +138,7 @@ int main() {
             }
 
             glViewport(0, 0, width, height);
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             const float aspectRatio = static_cast<float>(width) / height;
 
@@ -136,9 +154,15 @@ int main() {
             simulationManager.updateSimulation(frameDt);
             renderer.upload(simulationManager.getParticles());
 
-            // draw particles
+            const glm::mat4 viewProjection = camera.projectionMatrix(aspectRatio) * camera.viewMatrix();
+
+            // draw the container and particles using the same camera
+            containerShader.use();
+            containerShader.setMat4("viewProjection", viewProjection);
+            containerRender.draw();
+
             shader.use();
-            shader.setMat4("viewProjection",camera.projectionMatrix(aspectRatio) * camera.viewMatrix());
+            shader.setMat4("viewProjection", viewProjection);
             renderer.draw();
 
             glfwSwapBuffers(window);

@@ -2,9 +2,12 @@
 
 #include <utility>
 
-// initial solver by particles
-SimulationManager::SimulationManager(std::vector<Particle> particles)
-    : initialParticles(std::move(particles)), solver(initialParticles) {
+// initial simulation manager by scene
+SimulationManager::SimulationManager(SimulationScene scene, SimulationParams settings)
+    : params(settings),
+    simulationScene(std::move(scene)),
+    initialParticles(simulationScene.fluids.createParticles(params)),
+    solver(initialParticles) {
 }
 
 
@@ -18,12 +21,12 @@ void SimulationManager::reset() {
 void SimulationManager::updateSimulation(float dt) {
     // handle one step request
     if (stepRequested) {
-        solver.step(dt);
+        solver.step(params.fixedTimeStep);
         stepRequested = false;  // reset one step request
     }
 
     if (!isPaused) {
-        solver.step(dt);
+        solver.step(params.fixedTimeStep);
     }
 }
 
