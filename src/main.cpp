@@ -24,9 +24,8 @@ int main() {
     }
 
     // create solver with particles
-    PBFSolver solver(particles);
+    const BoxContainer box{{0.0f, 0.0f, 0.0f}, {2.0f, 5.0f, 2.0f}};
+    const SimulationParams settings;
 
-    // execute one step
-    solver.step(0.01f);
 
 }

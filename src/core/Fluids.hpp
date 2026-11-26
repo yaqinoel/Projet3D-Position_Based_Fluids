@@ -17,6 +17,8 @@ public:
     [[nodiscard]]
     std::vector<Particle> createParticles(const SimulationParams& settings) const;    // sampling particles in this fluid by settings
 
+    float getDensity() const;
+
 private:
     float density;
     InitialFluidCube cube;  // initial shape

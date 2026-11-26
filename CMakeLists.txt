@@ -15,6 +15,7 @@ FetchContent_MakeAvailable(glm)
 # PBF static core library
 add_library(pbf_core STATIC
     src/core/Fluids.cpp
+    src/core/NeighborSearchEngine.cpp
     src/core/PBFSolver.cpp
     src/core/SimulationManager.cpp
 )

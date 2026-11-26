@@ -7,7 +7,7 @@ SimulationManager::SimulationManager(SimulationScene scene, SimulationParams set
     : params(settings),
     simulationScene(std::move(scene)),
     initialParticles(simulationScene.fluids.createParticles(params)),
-    solver(initialParticles, simulationScene.container, params) {
+    solver(simulationScene.fluids.getDensity(),initialParticles, simulationScene.container, params) {
 }
 
 

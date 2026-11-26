@@ -65,4 +65,8 @@ std::vector<Particle> Fluids::createParticles(const SimulationParams &settings) 
     return particles;
 }
 
+float Fluids::getDensity() const {
+    return density;
+}
+
 

@@ -6,8 +6,8 @@
 
 
 // initialize solver with particles
-PBFSolver::PBFSolver(const std::vector<Particle>& initialParticles, BoxContainer box, SimulationParams params)
-    : particles(initialParticles), container(box), params(params) {
+PBFSolver::PBFSolver(const float density, const std::vector<Particle>& initialParticles, BoxContainer box, SimulationParams params)
+    : restDensity(density), particles(initialParticles), container(box), params(params), searchEngine(params.kernelRadius) {
     std::cout<< "Initialized solver with " << particles.size() << " particles" << std::endl;
 }
 
@@ -37,15 +37,22 @@ void PBFSolver::step(float dt) {
         newPositions[i] = p.position + dt * p.velocity;
     }
 
-    // TODO - find neighboring
-    for (int i = 0; i < particles.size(); i++) {
-
-    }
+    // find neighboring particles
+    searchEngine.runSearch(newPositions);
 
     // TODO - solver iteration
     while (iteration < params.numInteration) {
         // calculate lamda
         for (int i = 0; i < particles.size(); i++) {
+            auto& p = newPositions[i];
+            float density = 0.0f;
+            // get all neighbors index
+            const std::vector<std::size_t> neighborsIndex = searchEngine.getNeighbors(i);
+            // estimate density for each particles
+            for (int n = 0; n < neighborsIndex.size(); ++n) {
+                auto& np = newPositions[n];
+                // TODO - update density
+            }
         }
 
         // calculate position fix delta_P
