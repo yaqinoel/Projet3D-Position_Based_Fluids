@@ -1,13 +1,7 @@
 #pragma once
 
-#include <glm/vec3.hpp>
-
 #include "Fluids.hpp"
-
-struct BoxContainer {
-    glm::vec3 center;
-    glm::vec3 halfSize;
-};
+#include "BoxContainer.hpp"
 
 struct SimulationScene {
     Fluids fluids;

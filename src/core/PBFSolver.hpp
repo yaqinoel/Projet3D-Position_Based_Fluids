@@ -2,10 +2,12 @@
 
 #include <vector>
 #include "Particle.hpp"
+#include "BoxContainer.hpp"
+#include "SimulationParams.hpp"
 
 class PBFSolver {
 public:
-    explicit PBFSolver(const std::vector<Particle>& initialParticles);
+    explicit PBFSolver(const std::vector<Particle>& initialParticles, BoxContainer box, SimulationParams params);
 
     void step(float dt);
 
@@ -15,4 +17,6 @@ public:
 
 private:
     std::vector<Particle> particles;    // particles during the simulation
+    BoxContainer container; // container for particles
+    SimulationParams params; // parameters for simulation
 };
