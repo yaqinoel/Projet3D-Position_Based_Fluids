@@ -1,6 +1,7 @@
 #include "Fluids.hpp"
 
 #include <glm/gtc/random.hpp>
+#include <stdexcept>
 
 Fluids::Fluids(float density, InitialFluidCube cube)
     : density(density), cube(cube) {
@@ -8,7 +9,7 @@ Fluids::Fluids(float density, InitialFluidCube cube)
 
 // initialize particles in grid
 [[nodiscard]]
-std::vector<Particle> Fluids::createParticles(const SimulationParams &settings) const {
+std::vector<Particle> Fluids::createParticles(const SimulationParams& settings) const {
     std::vector<Particle> particles;
 
     // calcube fluid initial volume and mass
@@ -68,5 +69,3 @@ std::vector<Particle> Fluids::createParticles(const SimulationParams &settings) 
 float Fluids::getDensity() const {
     return density;
 }
-
-
