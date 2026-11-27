@@ -79,8 +79,14 @@ void PBFSolver::step(float dt) {
             const auto& neighbors = searchEngine.getNeighbors(i);
             glm::vec3 correction(0.0f);
             for (const std::size_t j : neighbors) {
-                // const float scale = lamda[i] * particles[j].mass + lamda[j] * particles[i].mass;
-                const float scale = lamda[i] + lamda[j];
+                // add an artificial pressure
+                const glm::vec3& offset = position - predictPositions[j];
+                const glm::vec3 delta_q = params.coeff_delta_q * params.kernelRadius * glm::vec3(0.0f, 1.0f, 0.0f);
+                const float numerator = poly6Kernel(offset, params.kernelRadius);
+                const float denominator = poly6Kernel(delta_q, params.kernelRadius);
+                float s_corr = - params.s_corr_k * std::pow(( numerator / denominator), params.s_corr_n);
+
+                const float scale = lamda[i] + lamda[j] + s_corr;
                 correction += scale * spikeyKernelGradient(position - predictPositions[j], h);
             }
             deltaPositions[i] = restDensityInv * correction;

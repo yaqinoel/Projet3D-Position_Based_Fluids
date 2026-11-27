@@ -22,10 +22,12 @@ struct SimulationParams {
 
     float particleSpacing = 0.0f;   // particle spacing when initialize particles
     float fixedTimeStep = 1.0f / 120.0f; // simulation fixed step time
-    float kernelRadius = 0.1f;
+    float kernelRadius = 0.2f;
     float epsilon_cfm = 1e-4;
-
-    float damping = 0.99f;
+    float damping = 0.999f;
+    float s_corr_k = 0.01f;
+    float coeff_delta_q = 0.2f;
+    int s_corr_n = 4;
 
     std::size_t particleCount = 10000;  // particle numbers when initialize particles
     glm::vec3 gravity {0.0f, -9.81f, 0.0f };    // gravity

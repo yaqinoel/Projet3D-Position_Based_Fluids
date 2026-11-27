@@ -100,13 +100,13 @@ int main() {
         SimulationParams settings;
         settings.particleSamplingMode = ParticleSamplingMode::BySpacing;
         settings.particleSpacing = 0.15f;
-        settings.kernelRadius = 1.5f * settings.particleSpacing;
+        settings.kernelRadius = 2.0f * settings.particleSpacing;
         // settings.particleSamplingMode = ParticleSamplingMode::ByCount;
         // settings.particleCount = 6000;
 
         // initialize simulation scene
         SimulationScene scene{
-            Fluids{1000.0f, InitialFluidCube{{0.0f, 1.75f, 0.0f },{1.0f, 1.0f, 1.0f}}},
+            Fluids{1000.0f, InitialFluidCube{{0.1f, 1.5f, 0.0f },{0.35f, 1.25f, 1.25f}}},
             BoxContainer{{0.0f, 0.0f, 0.0f},{2.0f, 3.0f, 2.0f}}
         };
 
@@ -123,7 +123,7 @@ int main() {
         // frame the container from an oblique angle
         Camera camera{scene.container.center, -125.0f, -20.0f};
         const float containerRadius = glm::length(scene.container.halfSize);
-        camera.move({0.0f, 0.0f, -2.0f * containerRadius});
+        camera.move({0.0f, 0.0f, -3.0f * containerRadius});
         MouseState mouse;
         CameraInputSettings cameraInput;
         double lastFrameTime = glfwGetTime();
