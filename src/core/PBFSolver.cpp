@@ -1,8 +1,10 @@
 #include <iostream>
 
 #include "PBFSolver.hpp"
+#include "kernelFunctions.hpp"
 
 #include <glm/common.hpp>
+#include <glm/geometric.hpp>
 
 
 // initialize solver with particles
@@ -14,19 +16,20 @@ PBFSolver::PBFSolver(const float density, const std::vector<Particle>& initialPa
 
 // execute simulation one step
 void PBFSolver::step(float dt) {
-
     if (dt <= 0.0f) {
         throw std::runtime_error("PBFSolver::step: dt is not positive");
     }
 
-    std::size_t iteration = 0;
-    std::vector<glm::vec3> newPositions;    // position predicted
-    newPositions.resize(particles.size());
+    // clean history
+    predictPositions.resize(particles.size());
+    lamda.resize(particles.size());
+    density.resize(particles.size());
+    constraintDensity.resize(particles.size());
 
     const glm::vec3 boxMin = container.center - container.halfSize;
     const glm::vec3 boxMax = container.center + container.halfSize;
 
-    // TODO - implement PBF algorithm
+    std::size_t iteration = 0;
 
     // for all particles predict new positions
     for (int i = 0; i < particles.size(); i++) {
@@ -34,46 +37,68 @@ void PBFSolver::step(float dt) {
         auto& p = particles[i];
         p.velocity = p.velocity + dt * params.gravity;
         // predict position
-        newPositions[i] = p.position + dt * p.velocity;
+        predictPositions[i] = p.position + dt * p.velocity;
     }
 
     // find neighboring particles
-    searchEngine.runSearch(newPositions);
+    searchEngine.runSearch(predictPositions);
 
-    // TODO - solver iteration
+    deltaPositions.resize(particles.size());
+    const float restDensityInv = 1.0f / restDensity;
+    const float h = params.kernelRadius;
+
     while (iteration < params.numInteration) {
-        // calculate lamda
-        for (int i = 0; i < particles.size(); i++) {
-            auto& p = newPositions[i];
-            float density = 0.0f;
-            // get all neighbors index
-            const std::vector<std::size_t> neighborsIndex = searchEngine.getNeighbors(i);
-            // estimate density for each particles
-            for (int n = 0; n < neighborsIndex.size(); ++n) {
-                auto& np = newPositions[n];
-                // TODO - update density
+        // estimate density and solve each density constraint.
+        for (std::size_t i = 0; i < particles.size(); ++i) {
+            const glm::vec3& position = predictPositions[i];
+            const auto& neighbors = searchEngine.getNeighbors(i);
+            // the neighbor search excludes the particle itself.
+            float particleDensity = particles[i].mass * poly6Kernel(glm::vec3(0.0f), h);
+            float squaredGradientSum = 0.0f;
+            glm::vec3 centerGradient(0.0f);
+
+            for (const std::size_t j : neighbors) {
+                const glm::vec3 offset = position - predictPositions[j];
+                const float mass = particles[j].mass;
+                particleDensity += mass * poly6Kernel(offset, h);
+
+                const glm::vec3 gradient = (mass * restDensityInv) * spikeyKernelGradient(offset, h);
+                centerGradient += gradient;
+                squaredGradientSum += glm::dot(gradient, gradient);
             }
+
+            density[i] = particleDensity;
+            constraintDensity[i] = particleDensity * restDensityInv - 1.0f;
+            const float denominator = squaredGradientSum + glm::dot(centerGradient, centerGradient) + params.epsilon_cfm;
+            lamda[i] = -constraintDensity[i] / denominator;
         }
 
-        // calculate position fix delta_P
-        for (int i = 0; i < particles.size(); i++) {
-            // perform collision detection and response
-            newPositions[i] = glm::clamp(newPositions[i], boxMin, boxMax);
+        // compute all corrections before updating any predicted position.
+        for (std::size_t i = 0; i < particles.size(); ++i) {
+            const glm::vec3& position = predictPositions[i];
+            const auto& neighbors = searchEngine.getNeighbors(i);
+            glm::vec3 correction(0.0f);
+            for (const std::size_t j : neighbors) {
+                const float scale = lamda[i] * particles[j].mass + lamda[j] * particles[i].mass;
+                correction += scale * spikeyKernelGradient(position - predictPositions[j], h);
+            }
+            deltaPositions[i] = restDensityInv * correction;
         }
 
-        // update new position with delta_p
-        for (int i = 0; i < particles.size(); i++) {
+        // apply the position and wall corrections together.
+        for (std::size_t i = 0; i < particles.size(); ++i) {
+            predictPositions[i] = glm::clamp(predictPositions[i] + deltaPositions[i], boxMin, boxMax);
         }
-
-        iteration++;
-    }   // end while
+        ++iteration;
+    }
 
     // update velocity and position
     for (int i = 0; i < particles.size(); i++) {
         auto& p = particles[i];
-        p.velocity = (newPositions[i] - p.position) / dt;
+        p.velocity = params.damping * (predictPositions[i] - p.position) / dt;
         // TODO - apply vorticity confinement and XSPH viscosity
-        p.position = newPositions[i];
+
+        p.position = predictPositions[i];
     }
 
 }

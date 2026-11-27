@@ -99,10 +99,10 @@ int main() {
         // simulation setting
         SimulationParams settings;
         settings.particleSamplingMode = ParticleSamplingMode::BySpacing;
-        settings.particleSpacing = 0.1f;
-        settings.kernelRadius = 2.0f * settings.particleSpacing;
+        settings.particleSpacing = 0.2f;
+        settings.kernelRadius = 1.5f * settings.particleSpacing;
         // settings.particleSamplingMode = ParticleSamplingMode::ByCount;
-        // settings.particleCount = 10000;
+        // settings.particleCount = 6000;
 
         // initialize simulation scene
         SimulationScene scene{

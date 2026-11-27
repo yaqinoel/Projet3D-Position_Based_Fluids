@@ -18,6 +18,7 @@ add_library(pbf_core STATIC
     src/core/NeighborSearchEngine.cpp
     src/core/PBFSolver.cpp
     src/core/SimulationManager.cpp
+    src/core/kernelFunctions.cpp
 )
 target_include_directories(pbf_core PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}/src/core"

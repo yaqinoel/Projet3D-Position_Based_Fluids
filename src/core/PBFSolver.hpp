@@ -19,6 +19,11 @@ public:
 private:
     const float restDensity;
     std::vector<Particle> particles;    // particles during the simulation
+    std::vector<glm::vec3> predictPositions; // positions predicted for all particles
+    std::vector<glm::vec3> deltaPositions;
+    std::vector<float> lamda;
+    std::vector<float> density;
+    std::vector<float> constraintDensity;
     BoxContainer container; // container for particles
     SimulationParams params; // parameters for simulation
     NeighborSearchEngine searchEngine;
