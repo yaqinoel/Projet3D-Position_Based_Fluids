@@ -69,7 +69,9 @@ void PBFSolver::step(float dt) {
 
             density[i] = particleDensity;
             constraintDensity[i] = particleDensity * restDensityInv - 1.0f;
-            const float denominator = squaredGradientSum + glm::dot(centerGradient, centerGradient) + params.epsilon_cfm;
+            // all fluid particles have the same mass.
+            const float gradientSquaredSum = squaredGradientSum + glm::dot(centerGradient, centerGradient);
+            const float denominator = gradientSquaredSum / particles[i].mass + params.epsilon_cfm;
             lamda[i] = -constraintDensity[i] / denominator;
         }
 
