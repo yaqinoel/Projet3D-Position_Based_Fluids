@@ -79,7 +79,8 @@ void PBFSolver::step(float dt) {
             const auto& neighbors = searchEngine.getNeighbors(i);
             glm::vec3 correction(0.0f);
             for (const std::size_t j : neighbors) {
-                const float scale = lamda[i] * particles[j].mass + lamda[j] * particles[i].mass;
+                // const float scale = lamda[i] * particles[j].mass + lamda[j] * particles[i].mass;
+                const float scale = lamda[i] + lamda[j];
                 correction += scale * spikeyKernelGradient(position - predictPositions[j], h);
             }
             deltaPositions[i] = restDensityInv * correction;
@@ -95,9 +96,8 @@ void PBFSolver::step(float dt) {
     // update velocity and position
     for (int i = 0; i < particles.size(); i++) {
         auto& p = particles[i];
-        p.velocity = params.damping * (predictPositions[i] - p.position) / dt;
         // TODO - apply vorticity confinement and XSPH viscosity
-
+        p.velocity = params.damping * (predictPositions[i] - p.position) / dt;
         p.position = predictPositions[i];
     }
 
