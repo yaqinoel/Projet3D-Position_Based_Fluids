@@ -25,10 +25,11 @@ struct SimulationParams {
 
     float particleSpacing = 0.0f;   // particle spacing when initialize particles
     float fixedTimeStep = 1.0f / 120.0f; // simulation fixed step time
+    float containerWidthCycleDuration = 1.0f; // seconds per cycle, zero keeps the width fixed
     float kernelRadius = 0.3f;
     float epsilon_cfm = 25;
     float damping = 0.999f;
-    float s_corr_k = 0.01f;
+    float s_corr_k = 0.002f;
     float coeff_delta_q = 0.2f;
     float xsph_c = 1e-5;
     int s_corr_n = 4;

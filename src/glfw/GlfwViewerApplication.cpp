@@ -94,13 +94,14 @@ int main() {
         // create shader
         const auto shaderDir = std::filesystem::path{ASSET_DIR} / "shader";
         Shader particleShader{shaderDir / "particles.vert", shaderDir / "particles.frag"};
-        ParticleRender renderer;
+        ParticleRender particleRender;
 
         // simulation setting
         SimulationParams settings;
         settings.particleSamplingMode = ParticleSamplingMode::BySpacing;
         settings.particleSpacing = 0.125f;
         settings.kernelRadius = 2.0f * settings.particleSpacing;
+        settings.containerWidthCycleDuration = 1.0f;
         // settings.particleSamplingMode = ParticleSamplingMode::ByCount;
         // settings.particleCount = 4000;
 
@@ -114,14 +115,15 @@ int main() {
         particleShader.setFloat("initialShapeHeight", scene.fluids.getInitialShapeHeight());
 
         Shader containerShader{shaderDir / "container.vert", shaderDir / "container.frag"};
-        BoxContainerRender containerRender(scene.container);
+        BoxContainerRender containerRender;
 
         // initialize simulation manager
         SimulationManager simulationManager(scene, settings);
         bindSimulationInput(window, simulationManager); // bind input key with simulation manager
 
-        // upload particles to GPU
-        renderer.upload(simulationManager.getParticles());
+        // upload particles and container to GPU
+        particleRender.upload(simulationManager.getParticles());
+        containerRender.upload(simulationManager.getContainer());
 
         // frame the container from an oblique angle
         Camera camera{scene.container.center, -125.0f, -20.0f};
@@ -155,9 +157,10 @@ int main() {
             // update input for camera
             updateCamera(window, camera, mouse, frameDt, cameraInput);
 
-            // update particles positions
+            // update particles and container
             simulationManager.updateSimulation(frameDt);
-            renderer.upload(simulationManager.getParticles());
+            particleRender.upload(simulationManager.getParticles());
+            containerRender.upload(simulationManager.getContainer());
 
             const glm::mat4 viewProjection = camera.projectionMatrix(aspectRatio) * camera.viewMatrix();
 
@@ -168,7 +171,7 @@ int main() {
 
             particleShader.use();
             particleShader.setMat4("viewProjection", viewProjection);
-            renderer.draw();
+            particleRender.draw();
 
             glfwSwapBuffers(window);
             glfwPollEvents();

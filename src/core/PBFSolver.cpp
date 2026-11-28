@@ -42,6 +42,13 @@ void PBFSolver::step(float dt) {
         predictPositions[i] = p.position + dt * p.velocity;
     }
 
+    if (containerShrank) {
+        for (glm::vec3& position : predictPositions) {
+            position = glm::clamp(position, boxMin, boxMax);
+        }
+        containerShrank = false;
+    }
+
     // find neighboring particles
     searchEngine.runSearch(predictPositions);
 
@@ -181,6 +188,21 @@ void PBFSolver::setParticles(const std::vector<Particle>& newParticles) {
     particles = newParticles;
 }
 
+
+void PBFSolver::setContainer(const BoxContainer& updatedContainer) {
+    const glm::vec3 oldMin = container.center - container.halfSize;
+    const glm::vec3 oldMax = container.center + container.halfSize;
+    const glm::vec3 newMin = updatedContainer.center - updatedContainer.halfSize;
+    const glm::vec3 newMax = updatedContainer.center + updatedContainer.halfSize;
+    containerShrank = containerShrank ||
+        glm::any(glm::greaterThan(newMin, oldMin)) ||
+        glm::any(glm::lessThan(newMax, oldMax));
+    container = updatedContainer;
+}
+
+const BoxContainer& PBFSolver::getContainer() const {
+    return container;
+}
 
 // get all particles, just for read, only the solver can change particles attributions
 [[nodiscard]]

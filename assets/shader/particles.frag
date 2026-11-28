@@ -6,7 +6,7 @@ out vec4 color;
 void main(){
     vec2 offset = gl_PointCoord - vec2(0.5);
 
-    if (dot(offset, offset) > 0.25) {
+    if (dot(offset, offset) > 0.10) {
         discard;
     }
 

@@ -1,5 +1,5 @@
 #include "BoxContainerRender.hpp"
-#include "SimulationScene.hpp"
+#include "BoxContainer.hpp"
 
 #include <array>
 #include <cstddef>
@@ -11,7 +11,21 @@ constexpr std::array<std::size_t, 24> edgeCorners{
     0, 4,  1, 5,  2, 6,  3, 7   // edges by side
 };
 
-BoxContainerRender::BoxContainerRender(const BoxContainer& container) {
+using BoxVertices = std::array<float, 3 * edgeCorners.size()>;
+
+BoxContainerRender::BoxContainerRender() {
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(BoxVertices), nullptr, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void BoxContainerRender::upload(const BoxContainer& container) {
     const glm::vec3 min = container.center - container.halfSize;
     const glm::vec3 max = container.center + container.halfSize;
     const std::array<glm::vec3, 8> corners{{
@@ -22,7 +36,7 @@ BoxContainerRender::BoxContainerRender(const BoxContainer& container) {
     }};
 
     // pack the two endpoints of each edge
-    std::array<float, 3 * edgeCorners.size()> vertices{};
+    BoxVertices vertices{};
     std::size_t component = 0;
     for (const std::size_t cornerIndex : edgeCorners) {
         const glm::vec3& corner = corners[cornerIndex];
@@ -31,14 +45,8 @@ BoxContainerRender::BoxContainerRender(const BoxContainer& container) {
         vertices[component++] = corner.z;
     }
 
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
-    glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

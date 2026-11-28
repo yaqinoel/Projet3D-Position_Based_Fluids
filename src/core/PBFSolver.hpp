@@ -15,6 +15,8 @@ public:
     [[nodiscard]]
     const std::vector<Particle>& getParticles() const;
     void setParticles(const std::vector<Particle>& particles);
+    void setContainer(const BoxContainer& updatedContainer);
+    const BoxContainer& getContainer() const;
 
 private:
     const float restDensity;
@@ -27,6 +29,7 @@ private:
     std::vector<float> density;
     std::vector<float> constraintDensity;
     BoxContainer container; // container for particles
+    bool containerShrank = false;
     SimulationParams params; // parameters for simulation
     NeighborSearchEngine searchEngine;
 };

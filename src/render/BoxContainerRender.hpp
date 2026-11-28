@@ -7,12 +7,13 @@ struct BoxContainer;
 // render to draw fluid box container
 class BoxContainerRender {
 public:
-    explicit BoxContainerRender(const BoxContainer& container);
+    BoxContainerRender();
     ~BoxContainerRender();
 
     BoxContainerRender(const BoxContainerRender&) = delete;
     BoxContainerRender& operator=(const BoxContainerRender&) = delete;
 
+    void upload(const BoxContainer& container);
     void draw() const;
 
 private:
