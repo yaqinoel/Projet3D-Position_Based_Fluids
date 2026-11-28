@@ -15,6 +15,7 @@ enum class ParticleSamplingMode {
 
 // all simulation parameters
 struct SimulationParams {
+    bool useArtificialPressure = false;
     std::size_t numInteration = 4; // interation numbers in solver
 
     TimeStepMode timeStepMode = TimeStepMode::Fixed;    // step time mode
