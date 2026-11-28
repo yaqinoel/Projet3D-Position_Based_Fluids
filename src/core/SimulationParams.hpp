@@ -17,6 +17,7 @@ enum class ParticleSamplingMode {
 struct SimulationParams {
     bool useArtificialPressure = true;
     bool useVortivityConfinement = true;
+    bool useXSPH = true;
     std::size_t numInteration = 4; // interation numbers in solver
 
     TimeStepMode timeStepMode = TimeStepMode::Fixed;    // step time mode
@@ -25,10 +26,11 @@ struct SimulationParams {
     float particleSpacing = 0.0f;   // particle spacing when initialize particles
     float fixedTimeStep = 1.0f / 120.0f; // simulation fixed step time
     float kernelRadius = 0.3f;
-    float epsilon_cfm = 1e+2;
+    float epsilon_cfm = 25;
     float damping = 0.999f;
     float s_corr_k = 0.01f;
     float coeff_delta_q = 0.2f;
+    float xsph_c = 1e-5;
     int s_corr_n = 4;
 
     std::size_t particleCount = 10000;  // particle numbers when initialize particles

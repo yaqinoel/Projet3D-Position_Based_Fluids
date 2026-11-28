@@ -22,6 +22,7 @@ private:
     std::vector<glm::vec3> predictPositions; // positions predicted for all particles
     std::vector<glm::vec3> deltaPositions;
     std::vector<glm::vec3> vorticity;
+    std::vector<glm::vec3> xsphVelocityCorrection;
     std::vector<float> lamda;
     std::vector<float> density;
     std::vector<float> constraintDensity;

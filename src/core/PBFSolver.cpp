@@ -26,6 +26,7 @@ void PBFSolver::step(float dt) {
     density.resize(particles.size());
     constraintDensity.resize(particles.size());
     vorticity.assign(particles.size(), glm::vec3(0.0f));
+    xsphVelocityCorrection.assign(particles.size(), glm::vec3(0.0f));
 
     const glm::vec3 boxMin = container.center - container.halfSize;
     const glm::vec3 boxMax = container.center + container.halfSize;
@@ -146,6 +147,22 @@ void PBFSolver::step(float dt) {
                 glm::vec3 forceVelocity = glm::cross(vorticityGradient, vorticity[i]);
                 p.velocity += forceVelocity / p.mass * dt;
             }
+        }
+    }
+
+    // XSPH
+    if (params.useXSPH) {
+        for (int i = 0; i < particles.size(); i++) {
+            const auto& neighbors = searchEngine.getNeighbors(i);
+            for (const std::size_t j : neighbors) {
+                const glm::vec3 offset = predictPositions[i] - predictPositions[j];
+                glm::vec3 velocityDiff = particles[j].velocity - particles[i].velocity;
+                xsphVelocityCorrection[i] += velocityDiff * poly6Kernel(offset, params.kernelRadius);
+            }
+        }
+        for (int i = 0; i < particles.size(); i++) {
+            auto& p = particles[i];
+            p.velocity += params.xsph_c * xsphVelocityCorrection[i];
         }
     }
 
