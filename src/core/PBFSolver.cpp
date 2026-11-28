@@ -25,6 +25,7 @@ void PBFSolver::step(float dt) {
     lamda.resize(particles.size());
     density.resize(particles.size());
     constraintDensity.resize(particles.size());
+    vorticity.assign(particles.size(), glm::vec3(0.0f));
 
     const glm::vec3 boxMin = container.center - container.halfSize;
     const glm::vec3 boxMax = container.center + container.halfSize;
@@ -105,11 +106,52 @@ void PBFSolver::step(float dt) {
         ++iteration;
     }
 
-    // update velocity and position
+    // update velocity
     for (int i = 0; i < particles.size(); i++) {
         auto& p = particles[i];
-        // TODO - apply vorticity confinement and XSPH viscosity
         p.velocity = params.damping * (predictPositions[i] - p.position) / dt;
+    }
+
+    // vorticity confinement
+    if (params.useVortivityConfinement) {
+        // update vorticity
+        for (int i = 0; i < particles.size(); i++) {
+            auto& p = particles[i];
+            // calculate vorticity
+            const auto& neighbors = searchEngine.getNeighbors(i);
+            for (const std::size_t j : neighbors) {
+                const glm::vec3 offset = predictPositions[i] - predictPositions[j];
+                glm::vec3 velocityDiff = particles[j].velocity - particles[i].velocity;
+                glm::vec3 gradient = - (p.mass * restDensityInv) * spikeyKernelGradient(offset, params.kernelRadius);
+                vorticity[i] += glm::cross(velocityDiff, gradient);
+            }
+        }
+
+        // update vorticity gradient and force
+        for (int i = 0; i < particles.size(); i++) {
+            auto& p = particles[i];
+            glm::vec3 vorticityGradient(0.0f);
+            // calculate vorticity
+            const auto& neighbors = searchEngine.getNeighbors(i);
+            for (const std::size_t j : neighbors) {
+                const glm::vec3 offset = predictPositions[i] - predictPositions[j];
+                float vorticityDiff = glm::length(vorticity[j]) - glm::length(vorticity[i]);
+                glm::vec3 gradient = (p.mass * restDensityInv) * spikeyKernelGradient(offset, params.kernelRadius);
+                float coeff = particles[j].mass / density[j];
+                vorticityGradient += coeff * vorticityDiff * gradient;
+            }
+
+            if (glm::dot(vorticityGradient, vorticityGradient) > 1e-9) {
+                vorticityGradient = glm::normalize(vorticityGradient);
+                glm::vec3 forceVelocity = glm::cross(vorticityGradient, vorticity[i]);
+                p.velocity += forceVelocity / p.mass * dt;
+            }
+        }
+    }
+
+    // update position
+    for (int i = 0; i < particles.size(); i++) {
+        auto& p = particles[i];
         p.position = predictPositions[i];
     }
 
