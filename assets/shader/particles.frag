@@ -1,5 +1,6 @@
 #version 330 core
 
+in vec3 initialColor;   // initialColor from vertex shader
 out vec4 color;
 
 void main(){
@@ -9,6 +10,6 @@ void main(){
         discard;
     }
 
-    color = vec4(0.23, 0.69, 0.95, 1.0);
+    color = vec4(initialColor, 1.0);
 
 }

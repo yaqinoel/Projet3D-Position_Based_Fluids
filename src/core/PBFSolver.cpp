@@ -88,7 +88,7 @@ void PBFSolver::step(float dt) {
                 const float denominator = poly6Kernel(delta_q, params.kernelRadius);
                 float s_corr = - params.s_corr_k * std::pow(( numerator / denominator), params.s_corr_n);
 
-                const float scale = lamda[i] + lamda[j] + s_corr;
+                const float scale = lamda[i] + lamda[j] +s_corr;
                 correction += scale * spikeyKernelGradient(position - predictPositions[j], h);
             }
             deltaPositions[i] = restDensityInv * correction;

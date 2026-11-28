@@ -93,7 +93,7 @@ int main() {
     {
         // create shader
         const auto shaderDir = std::filesystem::path{ASSET_DIR} / "shader";
-        Shader shader{shaderDir / "particles.vert", shaderDir / "particles.frag"};
+        Shader particleShader{shaderDir / "particles.vert", shaderDir / "particles.frag"};
         ParticleRender renderer;
 
         // simulation setting
@@ -106,9 +106,12 @@ int main() {
 
         // initialize simulation scene
         SimulationScene scene{
-            Fluids{1000.0f, InitialFluidCube{{0.2f, 1.5f, -0.1f },{0.45f, 1.25f, 1.35f}}},
+            Fluids{1000.0f, InitialFluidCube{{0.2f, 1.5f, -0.1f },{1.35f, 1.25f, 1.35f}}},
             BoxContainer{{0.0f, 0.0f, 0.0f},{2.0f, 3.0f, 2.0f}}
         };
+
+        particleShader.use();
+        particleShader.setFloat("initialShapeHeight", scene.fluids.getInitialShapeHeight());
 
         Shader containerShader{shaderDir / "container.vert", shaderDir / "container.frag"};
         BoxContainerRender containerRender(scene.container);
@@ -163,8 +166,8 @@ int main() {
             containerShader.setMat4("viewProjection", viewProjection);
             containerRender.draw();
 
-            shader.use();
-            shader.setMat4("viewProjection", viewProjection);
+            particleShader.use();
+            particleShader.setMat4("viewProjection", viewProjection);
             renderer.draw();
 
             glfwSwapBuffers(window);

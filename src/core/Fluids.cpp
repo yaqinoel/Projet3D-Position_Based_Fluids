@@ -63,9 +63,19 @@ std::vector<Particle> Fluids::createParticles(const SimulationParams& settings) 
         }
     }
 
+    // set a initial height from bottom to top
+    const float bottomY = cube.center.y - cube.halfSize.y;
+    for (Particle& particle : particles) {
+        particle.initialHeight = particle.position.y - bottomY;
+    }
+
     return particles;
 }
 
 float Fluids::getDensity() const {
     return density;
+}
+
+float Fluids::getInitialShapeHeight() const {
+    return 2.0f * cube.halfSize.y;
 }

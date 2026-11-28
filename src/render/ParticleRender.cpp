@@ -10,9 +10,13 @@ ParticleRender::ParticleRender() {
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
     glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr
+        0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr
     );
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+        1, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float))
+    );
+    glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -29,20 +33,21 @@ ParticleRender::~ParticleRender() {
 // upload particles data to GPU
 void ParticleRender::upload(const std::vector<Particle>& particles) {
     // collect positions of particles
-    std::vector<float> xyz;
-    xyz.reserve(particles.size() * 3);
+    std::vector<float> particleData;
+    particleData.reserve(particles.size() * 4);
 
     for (const Particle& particle : particles) {
-        xyz.push_back(particle.position.x);
-        xyz.push_back(particle.position.y);
-        xyz.push_back(particle.position.z);
+        particleData.push_back(particle.position.x);
+        particleData.push_back(particle.position.y);
+        particleData.push_back(particle.position.z);
+        particleData.push_back(particle.initialHeight);
     }
 
-    const auto sizeInBytes = static_cast<GLsizeiptr>(xyz.size() * sizeof(float));
+    const auto sizeInBytes = static_cast<GLsizeiptr>(particleData.size() * sizeof(float));
 
     // upload positions to vbo (gpu)
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeInBytes, xyz.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeInBytes, particleData.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     particleCount = static_cast<GLsizei>(particles.size());

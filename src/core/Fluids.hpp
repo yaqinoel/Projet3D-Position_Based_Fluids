@@ -18,6 +18,7 @@ public:
     std::vector<Particle> createParticles(const SimulationParams& settings) const;    // sampling particles in this fluid by settings
 
     float getDensity() const;
+    float getInitialShapeHeight() const;
 
 private:
     float density;
